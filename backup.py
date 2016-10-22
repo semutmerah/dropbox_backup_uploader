@@ -27,7 +27,7 @@ def backup_chunk():
             if file_size <= CHUNK_SIZE:
                 # We use WriteMode=overwrite to make sure that the settings in the file
                 # are changed on upload
-                print "Uploading " + file + " to Dropbox as " + BACKUPPATH+'/'+file + "..."
+                print ("Uploading " + file + " to Dropbox as " + BACKUPPATH+'/'+file + "...")
                 try:
 
                     dbx.files_upload(f, BACKUPPATH+'/'+file, mode=WriteMode('overwrite'))
@@ -48,7 +48,7 @@ def backup_chunk():
                 cursor = dropbox.files.UploadSessionCursor(session_id=upload_session_start_result.session_id,
                                                            offset=f.tell())
                 commit = dropbox.files.CommitInfo(path=BACKUPPATH+'/'+file)
-                print "Uploading " + file + " to Dropbox as " + BACKUPPATH+'/'+file + "..."
+                print ("Uploading " + file + " to Dropbox as " + BACKUPPATH+'/'+file + "...")
                 while f.tell() < file_size:
                     if ((file_size - f.tell()) <= CHUNK_SIZE):
                         dbx.files_upload_session_finish(f.read(CHUNK_SIZE),
@@ -66,7 +66,7 @@ def backup():
         with open(LOCALBACKUP+file, 'rb') as f:
             # We use WriteMode=overwrite to make sure that the settings in the file
             # are changed on upload
-            print("Uploading " + file + " to Dropbox as " + BACKUPPATH+'/'+file + "...")
+            print ("Uploading " + file + " to Dropbox as " + BACKUPPATH+'/'+file + "...")
             try:
 
                 dbx.files_upload(f, BACKUPPATH+'/'+file, mode=WriteMode('overwrite'))
