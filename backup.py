@@ -29,7 +29,6 @@ def backup_chunk():
                 # are changed on upload
                 print ("Uploading " + file + " to Dropbox as " + BACKUPPATH+'/'+file + "...")
                 try:
-
                     dbx.files_upload(f, BACKUPPATH+'/'+file, mode=WriteMode('overwrite'))
                 except ApiError as err:
                     # This checks for the specific error where a user doesn't have
@@ -59,29 +58,6 @@ def backup_chunk():
                                                         cursor.session_id,
                                                         cursor.offset)
                         cursor.offset = f.tell()
-
-# Uploads contents of LOCALFILE to Dropbox
-def backup():
-    for file in LOCALFILE:
-        with open(LOCALBACKUP+file, 'rb') as f:
-            # We use WriteMode=overwrite to make sure that the settings in the file
-            # are changed on upload
-            print ("Uploading " + file + " to Dropbox as " + BACKUPPATH+'/'+file + "...")
-            try:
-
-                dbx.files_upload(f, BACKUPPATH+'/'+file, mode=WriteMode('overwrite'))
-            except ApiError as err:
-                # This checks for the specific error where a user doesn't have
-                # enough Dropbox space quota to upload this file
-                if (err.error.is_path() and
-                        err.error.get_path().error.is_insufficient_space()):
-                    sys.exit("ERROR: Cannot back up; insufficient space.")
-                elif err.user_message_text:
-                    print(err.user_message_text)
-                    sys.exit()
-                else:
-                    print(err)
-                    sys.exit()
 
 if __name__ == '__main__':
     # Check for an access token
