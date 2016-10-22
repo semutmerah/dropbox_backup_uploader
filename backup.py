@@ -14,22 +14,23 @@ from dropbox.exceptions import ApiError, AuthError
 # See <https://blogs.dropbox.com/developers/2014/05/generate-an-access-token-for-your-own-account/>
 TOKEN = ''
 
-LOCALBACKUP = './file_backup/'
-LOCALFILE = os.listdir(LOCALBACKUP)
-BACKUPPATH = '/backup_server'
+LOCAL_BACKUP_DIR = './file_backup/'
+LOCAL_FILE = os.listdir(LOCAL_BACKUP_DIR)
+BACKUP_PATH = '/backup_server'
+# We set the chunk limit to 10MB
 CHUNK_SIZE = 10 * 1024 * 1024
 
-# Chunking uploads contents of LOCALFILE to Dropbox
+# Chunking uploads contents of LOCAL_FILE to Dropbox
 def backup_chunk():
-    for file in LOCALFILE:
-        with open(LOCALBACKUP+file, 'rb') as f:
-            file_size = os.path.getsize(LOCALBACKUP+file)
+    for file in LOCAL_FILE:
+        with open(LOCAL_BACKUP_DIR+file, 'rb') as f:
+            file_size = os.path.getsize(LOCAL_BACKUP_DIR+file)
             if file_size <= CHUNK_SIZE:
                 # We use WriteMode=overwrite to make sure that the settings in the file
                 # are changed on upload
-                print ("Uploading " + file + " to Dropbox as " + BACKUPPATH+'/'+file + "...")
+                print ("Uploading " + file + " to Dropbox as " + BACKUP_PATH+'/'+file + "...")
                 try:
-                    dbx.files_upload(f, BACKUPPATH+'/'+file, mode=WriteMode('overwrite'))
+                    dbx.files_upload(f, BACKUP_PATH+'/'+file, mode=WriteMode('overwrite'))
                 except ApiError as err:
                     # This checks for the specific error where a user doesn't have
                     # enough Dropbox space quota to upload this file
@@ -46,8 +47,8 @@ def backup_chunk():
                 upload_session_start_result = dbx.files_upload_session_start(f.read(CHUNK_SIZE))
                 cursor = dropbox.files.UploadSessionCursor(session_id=upload_session_start_result.session_id,
                                                            offset=f.tell())
-                commit = dropbox.files.CommitInfo(path=BACKUPPATH+'/'+file)
-                print ("Uploading " + file + " to Dropbox as " + BACKUPPATH+'/'+file + "...")
+                commit = dropbox.files.CommitInfo(path=BACKUP_PATH+'/'+file)
+                print ("Uploading " + file + " to Dropbox as " + BACKUP_PATH+'/'+file + "...")
                 while f.tell() < file_size:
                     if ((file_size - f.tell()) <= CHUNK_SIZE):
                         dbx.files_upload_session_finish(f.read(CHUNK_SIZE),
@@ -77,7 +78,7 @@ if __name__ == '__main__':
     # Delete backup folder first
     print("Deleting backup folder on dropbox first...")
     try:
-        dbx.files_delete(BACKUPPATH)
+        dbx.files_delete(BACKUP_PATH)
     except:
         pass
 
